@@ -1,0 +1,236 @@
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+   .addon-title, .dynamic-checkout__title, .sidebar .field__input, h2.section__title {
+    font-size: 15px;
+}
+.addon-title {
+    padding-top: 10px;
+    margin-bottom: 24px;
+}
+.addon-title, h2.section__title {
+    text-transform: uppercase;
+        font-family: Roboto, sans-serif;
+    letter-spacing: 1.5px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+}
+
+
+.product-wrapper {
+    
+    padding-bottom: 10px;
+    margin: 0 0 8px;
+}
+  .cl-btn-wrapper {
+    display:block;
+    border: 1px solid #000;
+    padding: 10px;
+    text-align: center;
+    background: #000;
+    margin: 15px;
+}
+    .cl-btn-wrapper  a.custom-add {
+    color: #fff;
+         font-size: 12px;
+    font-weight: 600;
+}
+      .btn-wrapper {
+display:none;
+    }
+.product-wrapper {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.product-wrapper .image-wrapper {
+    background: #fff;
+    width: 15%;
+    border: #ccc solid 1px;
+}
+
+
+.product-wrapper .product-info {
+    width: 60%;
+    padding: 0 8px 0 15px;
+    box-sizing: border-box;
+}
+
+.product-wrapper .btn-wrapper {
+    width: 20%;
+    padding: 14px 10px!important;
+}
+
+.product-wrapper .btn-wrapper a {
+    font-family: Roboto, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 18px;
+    text-align: center;
+    letter-spacing: 1.5px;
+    background: #000!important;
+    display: block;
+    color: #fff;
+    padding: 15px 10px;
+    text-transform: uppercase;
+    border-radius: 1px!important;
+    -moz-border-radius: 1px!important;
+    -webkit-border-radius: 1px!important;
+}
+  .order-summary__sections {
+
+    height: 400px !important;
+}
+   .order-summary__section--product-list {
+    min-height: 20em !important;
+ }
+ 
+ div#shopify-section-checkout {
+    margin-top: 200px;
+}
+  @media only screen and (max-width: 768px){
+  
+
+div#shopify-section-checkout {
+   margin-top:0px;
+    width: 100%;
+}
+ .shopify-section.cl-margin {
+   margin-top:200px !important;
+    width: 100%;
+}
+    .cl-btn-wrapper {
+display:none;
+    }
+    .btn-wrapper {
+      display:block;
+    border: 1px solid #000;
+    color: #fff !important;
+    background: #000 !important;
+    text-align: center;
+    font-size: 20px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+    
+  .btn-wrapper  a.custom-add {
+    color: #fff;
+        font-size: 12px;
+    font-weight: 600;
+}
+  
+  }
+  
+</style>
+
+{% for item in cart.items %}
+	{{item.title}}
+{% endfor %}
+<div class="addon-wrapper">
+  <div class="addon-title">Great picks! Shop our Best Sellers.</div>
+  <div class="addon-products">
+  </div>
+</div>
+{{ 'checkout_script.js' | asset_url | script_tag }}
+{% for block in section.blocks %}
+ 
+  <script>
+    $(document).ready(function(){
+        jQuery.getJSON('/products/{{block.settings.product}}.js', function(product) {
+          if(product.available){
+          var productPrice = product.price;
+          var str = productPrice.toString();
+          var chars = str.split("");
+          chars.splice(-2, 0, '.');
+          var finalProductPrice = chars.join('');
+//           console.log(finalProductPrice);
+            var htmlContent = "";
+//             console.log('product', product);
+            htmlContent+= '<div class="product-wrapper">';
+            htmlContent+= '  <div class="image-wrapper">';
+            htmlContent+= '    <img src="'+product.featured_image+'" width="68px"/>';
+            htmlContent+= '  </div>';
+            htmlContent+= '  <div class="product-info">';
+            htmlContent+= '    <div class="title">';
+            htmlContent+=        product.title;
+            htmlContent+= '    </div>';
+            htmlContent+= '    <div class="description">';
+            htmlContent+=        '$'+finalProductPrice+'';
+            htmlContent+= '    </div>';
+            htmlContent+= '  </div>';
+            htmlContent+= '  <div class="cl-btn-wrapper">';
+            htmlContent+= '    <a href="#" class="custom-add" data-id="'+product.variants[0].id+'">ADD</a>';
+            htmlContent+= '  </div>';
+            htmlContent+= '</div>';
+            htmlContent+= '  <div class="btn-wrapper">';
+            htmlContent+= '    <a href="#" class="custom-add" data-id="'+product.variants[0].id+'">ADD</a>';
+            htmlContent+= '  </div>';
+           
+            $('.addon-products').append(htmlContent);
+          }
+       });
+    })
+
+  </script>
+
+{% endfor %}
+<script>
+
+  let marginClass = document.querySelector('div#shopify-section-checkout');
+ 
+$("button.order-summary-toggle ").click(function(){
+   console.log(marginClass,"hi")
+$( marginClass ).toggleClass('cl-margin')
+
+});
+
+</script>
+<div class="desktop_checkout-text">
+ 
+ 
+   {% if settings.customer_service_hours_title != blank %} <div class="customer_service_hours_title">{{settings.customer_service_hours_title}}</div>    {% endif %}
+  {% if settings.customer_service_hours != blank %}  <div class="customer_service_hours">{{settings.customer_service_hours}}</div>   {% endif %}
+
+</div>
+
+{% schema %}
+  {
+    "name": "Checkout",
+    "settings": [
+	  {
+        "type": "text",
+        "id": "addon_title",
+        "label": "Add On Title",
+		"default": "COMPLETE YOUR KIT"
+      }
+	],
+    "blocks": [
+      {
+        "type": "feature",
+        "name": "Product",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Select add-on product"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
